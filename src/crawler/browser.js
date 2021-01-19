@@ -1,4 +1,4 @@
-const Puppeteer = require('puppeteer');
+const Puppeteer = require('puppeteer-core');
 
 class Browser {
   constructor(puppeteerBrowser, maxConcurrency, browserLaunched) {
