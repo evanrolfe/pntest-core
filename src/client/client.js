@@ -14,19 +14,20 @@ class Client {
     this.paths = paths;
     this.interceptChannel = interceptChannel;
     this.options = options;
+    console.log(`-------------> Creating client: ${interceptChannel}`)
   }
 
-  static async create(type, paths) {
+  static async create(type, paths, interceptChannel) {
     const ports = await _getNextPortsAvailable(PORTS_AVAILABLE);
     const clientData = await ClientData.create({type: type, browserPort: ports.browser, proxyPort: ports.proxy});
 
-    return new Client(clientData, paths)
+    return new Client(clientData, paths, interceptChannel)
   }
 
-  static async load(id, paths, options) {
+  static async load(id, paths, interceptChannel, options) {
     const clientData = await ClientData.load(id);
 
-    return new Client(clientData, paths, options)
+    return new Client(clientData, paths, interceptChannel, options)
   }
 
   static async listTypesAvailable() {

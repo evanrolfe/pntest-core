@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer-core');
 
-const { DEFAULT_FILTERS } = require('../shared/constants');
+const { DEFAULT_FILTERS } = require('../src/shared/constants');
 
 const clearDatabaseTable = async (tableName) => {
   await global.knex.raw(`DELETE FROM ${tableName};`);

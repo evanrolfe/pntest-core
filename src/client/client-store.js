@@ -8,6 +8,7 @@ class ClientStore {
   }
 
   async createClient(type, paths) {
+    console.log(`-------------> ClientStore: Creating client: ${this.interceptChannel}`)
     const client = await Client.create(type, paths, this.interceptChannel);
 
     client.onBrowserClosed(() => {

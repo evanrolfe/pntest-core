@@ -3,7 +3,7 @@
 const util = require('util');
 const { exec } = require('child_process');
 
-const { DEFAULT_FILTERS } = require('../../shared/constants');
+const { DEFAULT_FILTERS } = require('../../src/shared/constants');
 const { sleep, clearDatabase, writeToBackend, messageFromBackend } = require('../utils');
 
 const makeRequest = (proxyPort, curlCommand) => new Promise((resolve, reject) => {

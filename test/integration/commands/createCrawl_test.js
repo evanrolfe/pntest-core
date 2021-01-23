@@ -1,5 +1,5 @@
 const { sleep, clearDatabase, writeToBackend, messageFromBackend, clearDatabaseTable } = require('../../utils');
-const { PORTS_AVAILABLE, DEFAULT_FILTERS } = require('../../../shared/constants');
+const { PORTS_AVAILABLE, DEFAULT_FILTERS } = require('../../../src/shared/constants');
 
 describe('createCrawl Command', () => {
   let result;

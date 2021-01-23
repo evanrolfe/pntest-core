@@ -1,5 +1,5 @@
-const RequestResponsePair = require('../../../../shared/models/request-response-pair');
-const Request = require('../../../../shared/models/request');
+const RequestResponsePair = require('../../../../src/shared/models/request-response-pair');
+const Request = require('../../../../src/shared/models/request');
 
 describe('RequestResponsePair', () => {
   let reqResPair;

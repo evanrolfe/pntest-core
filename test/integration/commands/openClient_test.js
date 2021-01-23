@@ -1,5 +1,5 @@
 const { sleep, clearDatabase, writeToBackend, messageFromBackend, clearDatabaseTable } = require('../../utils');
-const { PORTS_AVAILABLE } = require('../../../shared/constants');
+const { PORTS_AVAILABLE } = require('../../../src/shared/constants');
 
 describe('openClient Command', () => {
   let result;

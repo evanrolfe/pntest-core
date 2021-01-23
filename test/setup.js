@@ -3,7 +3,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const path = require('path');
 
-const { setupDatabaseStore } = require('../shared/database');
+const { setupDatabaseStore } = require('../src/shared/database');
 const { messageFromBackend, clearDatabaseTable } = require('./utils');
 const { ensureBackendIsKilled } = require('./support/ensure_backend_is_killed');
 const { checkServerIsRunning } = require('./support/check_server_is_running');
@@ -22,12 +22,14 @@ const DATABASE_TABLES = [
   'websocket_messages',
 ];
 
+const appPath = path.join(__dirname, '../');
+const dataPath = path.join(__dirname, '../include');
 const dbPath = path.join(__dirname, './test.db');
 
 const spawnBackend = async () => {
   console.log('[TEST] Spawning backend process...');
 
-  const backendProc = spawn('npm', ['run', 'backend-test', '--', `--dbPath=${dbPath}`], {
+  const backendProc = spawn('npm', ['run', 'backend-test', '--', `--dbPath=${dbPath}`, `--appPath=${appPath}`, `--dataPath=${dataPath}`], {
       shell: true,
       env: process.env,
       detached: true
@@ -35,7 +37,7 @@ const spawnBackend = async () => {
     .on('close', code => process.exit(code))
     .on('error', spawnError => console.error(spawnError));
 
-  //backendProc.stdout.pipe(process.stdout);
+  backendProc.stdout.pipe(process.stdout);
   if (DEBUG_BROWSER_UTILS) {
     backendProc.stdout.on('data', (data) => {
       if (data.includes('BrowserUtils'))

@@ -1,5 +1,5 @@
 const { sleep, clearDatabase, writeToBackend, messageFromBackend, connectToBrowser } = require('../utils');
-
+/*
 describe('Browsing', () => {
   let browser;
 
@@ -50,3 +50,4 @@ describe('Browsing', () => {
     });
   });
 });
+*/
