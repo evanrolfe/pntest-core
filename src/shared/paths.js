@@ -29,9 +29,9 @@ const getPaths = () => {
   const paths = {
     dataPath: dataPath,
     dbFile: dbPath,
-    keyPath: `${appPath}rootCA.key`,
-    certPath: `${appPath}rootCA.csr`,
-    cert9Path: `${appPath}cert9.db`
+    keyPath: `${dataPath}rootCA.key`,
+    certPath: `${dataPath}rootCA.csr`,
+    cert9Path: `${dataPath}cert9.db`
   };
 
   return paths;
