@@ -22,5 +22,5 @@ npm run test
 ### Build
 Compile to a single binary using this command:
 ```
-$ scripts/compile_bin.sh
+$ scripts/build.sh
 ```

@@ -50,7 +50,7 @@ class BrowserProc {
 
   async _startChromeChromium(browserType) {
     const spki = getSPKIFingerprint(this.paths.keyPath, this.paths.certPath);
-    const profilePath = `${this.paths.tmpPath}/${browserType}-profile`;
+    const profilePath = `${this.paths.dataPath}/${browserType}-profile`;
 
     const launchOptions = {
       browser: browserType,
@@ -137,7 +137,7 @@ class BrowserProc {
   // openssl x509 -req -in testCA.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -days 3650 -sha256 -out testCA.pem
   // https://stackoverflow.com/questions/12219639/is-it-possible-to-dynamically-return-an-ssl-certificate-in-nodejs
   const startFirefox = async (proxyPort, browserId, paths, proxyPid) => {
-    const profilePath = `${paths.tmpPath}/firefox-profile${browserId}`;
+    const profilePath = `${paths.dataPath}/firefox-profile${browserId}`;
 
     launcher(function(err, launch) {
       if (err) {
