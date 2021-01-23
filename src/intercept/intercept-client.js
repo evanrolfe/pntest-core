@@ -2,7 +2,7 @@ const { IPCClient } = require('../intercept/ipc-client');
 
 class InterceptClient {
   constructor() {
-    this.ipcClient = new IPCClient('oneproxy-intercept');
+    this.ipcClient = new IPCClient('pntest-intercept');
   }
 
   async connect() {

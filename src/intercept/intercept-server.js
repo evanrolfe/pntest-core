@@ -3,7 +3,7 @@ const { InterceptQueue } = require('./intercept-queue');
 
 class InterceptServer {
   constructor() {
-    this.ipcServer = new IPCServer('oneproxy-intercept');
+    this.ipcServer = new IPCServer('pntest-intercept');
     this.interceptQueue = new InterceptQueue(this.ipcServer);
   }
 
