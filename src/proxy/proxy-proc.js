@@ -1,16 +1,18 @@
 const { fork } = require('child_process');
 
 class ProxyProc {
-  constructor(clientData, paths) {
+  constructor(clientData, paths, interceptChannel) {
     this.clientData = clientData;
     this.paths = paths;
+    this.interceptChannel = interceptChannel;
   }
 
   async start() {
     this.proc = fork(require.resolve('./index'), [
       '--port', this.clientData.proxyPort,
       '--clientId', this.clientData.id,
-      '--paths', JSON.stringify(this.paths)
+      '--paths', JSON.stringify(this.paths),
+      '--interceptChannel', this.interceptChannel
     ]);
     this.pid = this.proc.pid;
 

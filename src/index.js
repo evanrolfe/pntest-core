@@ -50,9 +50,9 @@ const logger = winston.createLogger({
 
 // Start sub-processes:
 const paths = getPaths();
-const clientStore = new ClientStore();
 const interceptProc = new InterceptProc();
 interceptProc.start();
+const clientStore = new ClientStore(interceptProc.channelName);
 
 // Add them to the ProcessStore:
 const processStore = new ProcessStore();
@@ -60,7 +60,7 @@ processStore.addClientStore(clientStore);
 processStore.addProc(interceptProc);
 processStore.ensureCleanupOnExit();
 
-const interceptClient = new InterceptClient();
+const interceptClient = new InterceptClient(interceptProc.channelName);
 
 // Handle std input from the frontend:
 const handleLine = async (cmd) => {

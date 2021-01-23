@@ -2,12 +2,13 @@ const { Client } = require('./client');
 const frontend = require('../shared/notify_frontend');
 
 class ClientStore {
-  constructor() {
+  constructor(interceptChannel) {
     this.clients = [];
+    this.interceptChannel = interceptChannel;
   }
 
   async createClient(type, paths) {
-    const client = await Client.create(type, paths);
+    const client = await Client.create(type, paths, this.interceptChannel);
 
     client.onBrowserClosed(() => {
       this.closeClient(client.clientData.id);
@@ -18,7 +19,7 @@ class ClientStore {
   }
 
   async loadClient(id, paths, options) {
-    const client = await Client.load(id, paths, options);
+    const client = await Client.load(id, paths, this.interceptChannel, options);
 
     client.onBrowserClosed(() => {
       this.closeClient(client.clientData.id);

@@ -7,7 +7,7 @@ const { startProxyServer } = require('./proxy-server');
 const paths = JSON.parse(argv.paths);
 const clientId = argv.clientId;
 const port = argv.port;
-const interceptClient = new InterceptClient();
+const interceptClient = new InterceptClient(argv.interceptChannel);
 
 (async () => {
   console.log(`[Proxy] starting`)

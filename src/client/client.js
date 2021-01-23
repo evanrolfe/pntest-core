@@ -9,9 +9,10 @@ const { ProxyProc } = require('../proxy/proxy-proc');
 const { PORTS_AVAILABLE } = require('../shared/constants');
 
 class Client {
-  constructor(clientData, paths, options = {}) {
+  constructor(clientData, paths, interceptChannel, options = {}) {
     this.clientData = clientData;
     this.paths = paths;
+    this.interceptChannel = interceptChannel;
     this.options = options;
   }
 
@@ -92,7 +93,7 @@ class Client {
 
   // Private Methods:
   async _startProxy() {
-    this.proxy = new ProxyProc(this.clientData, this.paths);
+    this.proxy = new ProxyProc(this.clientData, this.paths, this.interceptChannel);
     await this.proxy.start();
   }
 

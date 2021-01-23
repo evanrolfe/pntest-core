@@ -1,5 +1,6 @@
+const { argv } = require('yargs');
 const { InterceptServer } = require('./intercept-server');
 
-
-const interceptServer = new InterceptServer();
+const channelName = argv.channel;
+const interceptServer = new InterceptServer(channelName);
 interceptServer.start();

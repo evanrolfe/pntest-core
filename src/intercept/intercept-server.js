@@ -2,8 +2,9 @@ const { IPCServer } = require('./ipc-server');
 const { InterceptQueue } = require('./intercept-queue');
 
 class InterceptServer {
-  constructor() {
-    this.ipcServer = new IPCServer('pntest-intercept');
+  constructor(channelName) {
+    this.channelName = channelName;
+    this.ipcServer = new IPCServer(this.channelName);
     this.interceptQueue = new InterceptQueue(this.ipcServer);
   }
 

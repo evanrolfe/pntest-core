@@ -1,8 +1,9 @@
 const { IPCClient } = require('../intercept/ipc-client');
 
 class InterceptClient {
-  constructor() {
-    this.ipcClient = new IPCClient('pntest-intercept');
+  constructor(channelName) {
+    this.channelName = channelName;
+    this.ipcClient = new IPCClient(this.channelName);
   }
 
   async connect() {
