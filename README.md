@@ -1,4 +1,5 @@
 # PnTest-Core
+[![CircleCI](https://circleci.com/gh/evanrolfe/pntest-core.svg?style=shield)](https://app.circleci.com/pipelines/github/evanrolfe/pntest-core)
 
 A core binary which handles proxies, browsers, the intercept and crawlers. Runs on Node 12.
 
