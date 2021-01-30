@@ -7,6 +7,7 @@ const frontend = require('../../shared/notify_frontend');
 const CaptureFilters = require('./capture-filters');
 const Request = require('./request');
 const Response = require('./response');
+const ResponseError = require('./response-error');
 const { parseHost, parseHostAndPort } = require('../utils');
 
 class RequestResponsePair {
@@ -29,6 +30,12 @@ class RequestResponsePair {
     const response = new Response(httpServerResponse);
     response.id = this.id;
     this.response = response;
+    await this.saveToDatabaseIfAlreadySaved();
+  }
+
+  async addResponseError(error) {
+    const responseError = new ResponseError(error);
+    this.response = responseError;
     await this.saveToDatabaseIfAlreadySaved();
   }
 

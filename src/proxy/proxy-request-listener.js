@@ -115,10 +115,7 @@ const proxyRequestListener = async (
       await reqResPair.addHttpServerResponse(serverToProxyResponse);
 
     } catch(error) {
-      if (error.code !== 'ECONNREFUSED' && error.code !== 'ENOTFOUND') {
-        console.error(`[ERROR] ${reqResPair.request.method} ${reqResPair.request.url} ${error.code}`);
-      }
-
+      await reqResPair.addResponseError(error)
       proxyToClientResponse.end(error.code, 'UTF-8');
       return;
     }

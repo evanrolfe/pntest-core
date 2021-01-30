@@ -39,4 +39,17 @@ accept: */*
       expect(reqResPair.modifiedRequest.headers).to.eql({ host: 'localhost:3000', 'user-agent': 'curl/1.2.3', accept: '*/*' })
     });
   });
+
+  describe('#addResponseError', () => {
+    const error = {
+      code: 'Z_BUF_ERROR',
+      message: 'unexpected end of file'
+    };
+
+    it('sets the error message to teh response', async () => {
+      await reqResPair.addResponseError(error);
+
+      expect(reqResPair.response.code).to.eql('Z_BUF_ERROR');
+    });
+  });
 });
