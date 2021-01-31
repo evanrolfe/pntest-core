@@ -83,6 +83,8 @@ const saveResponseToDB = async (requestId, response) => {
     response_status_message: response.statusMessage
   };
 
+  if (requestId === undefined) return
+
   await global
     .knex('requests')
     .where({ id: requestId })
