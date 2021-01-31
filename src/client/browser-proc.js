@@ -4,6 +4,8 @@ const { instrumentBrowserWithPuppeteer } = require('./browser/instrument-with-pu
 const { getSPKIFingerprint } = require('../shared/cert-utils');
 const frontend = require('../shared/notify_frontend');
 
+const HOMEPAGE_URL = 'https://pntest';
+
 class BrowserProc {
   constructor(clientData, paths, options = {}) {
     this.clientData = clientData;
@@ -93,7 +95,7 @@ class BrowserProc {
           return;
         }
 
-        launch('', launchOptions, async (err, browserInstance) => {
+        launch(HOMEPAGE_URL, launchOptions, async (err, browserInstance) => {
           if (err) {
             console.log(`[Backend] Error: ${err}`);
             return;
@@ -167,7 +169,7 @@ class BrowserProc {
           return;
         }
 
-        launch('', launchOptions, async (err, browserInstance) => {
+        launch(HOMEPAGE_URL, launchOptions, async (err, browserInstance) => {
           if (err) {
             console.log(`[Backend] Error: ${err}`);
             return;

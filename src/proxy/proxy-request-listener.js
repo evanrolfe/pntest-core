@@ -4,6 +4,7 @@ const http = require('http');
 const https = require('https');
 const zlib = require('zlib');
 
+const { htmlPage } = require('./html-page');
 const RequestResponsePair = require('../shared/models/request-response-pair');
 const Settings = require('../shared/models/settings');
 
@@ -85,7 +86,12 @@ const proxyRequestListener = async (
     browserId
   );
 
-  if (reqResPair === null) {
+  if (clientToProxyRequest.headers.host === 'pntest') {
+    clientToProxyRequest.resume();
+    proxyToClientResponse.writeHead(200, { 'Content-Type': 'text/html' });
+    proxyToClientResponse.end(htmlPage);
+    return;
+  } else if (reqResPair === null) {
     clientToProxyRequest.resume();
     proxyToClientResponse.writeHeader(400, {
       'Content-Type': 'text/html; charset=utf-8'
