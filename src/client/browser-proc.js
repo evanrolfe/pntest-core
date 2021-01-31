@@ -3,8 +3,7 @@ const fs = require('fs');
 const { instrumentBrowserWithPuppeteer } = require('./browser/instrument-with-puppeteer');
 const { getSPKIFingerprint } = require('../shared/cert-utils');
 const frontend = require('../shared/notify_frontend');
-
-const HOMEPAGE_URL = 'https://pntest';
+const { HOMEPAGE_URL } = require('../shared/constants');
 
 class BrowserProc {
   constructor(clientData, paths, options = {}) {

@@ -13,7 +13,10 @@ const PORTS_AVAILABLE = {
   browser: [9222, 9223, 9224, 9225, 9226, 9227, 9228, 9229, 9230, 9231, 9232]
 };
 
+const HOMEPAGE_URL = 'https://pntest';
+
 module.exports = {
   DEFAULT_FILTERS,
-  PORTS_AVAILABLE
+  PORTS_AVAILABLE,
+  HOMEPAGE_URL
 };

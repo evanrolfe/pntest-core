@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer-core');
 const { handleNewPage } = require('./puppeteer-callbacks');
+const { HOMEPAGE_URL } = require('../../shared/constants');
 
 const instrumentBrowserWithPuppeteer = async (browserId, debugPort, options) => {
   console.log(`[BrowserUtils-${browserId}] Connecting to the browser on port ${debugPort}...`)
@@ -44,8 +45,10 @@ const instrumentBrowserWithPuppeteer = async (browserId, debugPort, options) => 
     // Close and re-open the page so its instrumented:
     const pages = await browser.pages();
     const page = pages[0];
-    await browser.newPage();
-    page.close();
+
+    const newPage = await browser.newPage();
+    await newPage.goto(HOMEPAGE_URL);
+    await page.close();
   }
 
   //browser.on('disconnected', () => handleBrowserClosed(browser));
