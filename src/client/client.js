@@ -19,6 +19,11 @@ class Client {
 
   static async create(type, paths, interceptChannel) {
     const ports = await _getNextPortsAvailable(PORTS_AVAILABLE);
+
+    if (['anything', 'terminal'].includes(type)) {
+      delete ports.browser;
+    }
+
     const clientData = await ClientData.create({type: type, browserPort: ports.browser, proxyPort: ports.proxy});
 
     return new Client(clientData, paths, interceptChannel)
@@ -76,6 +81,8 @@ class Client {
 
     if (this.proxy) killProcGracefully(this.proxy.pid)
     if (this.browser) killProcGracefully(this.browser.pid);
+
+    this._closeClient();
   }
 
   async bringToFront() {
@@ -105,6 +112,11 @@ class Client {
 
     await this.browser.start();
     console.log(`[Backend] Browser started with PID: ${this.browser.pid}`)
+  }
+
+  async _closeClient() {
+    await this.clientData.update({open: false});
+    frontend.notifyClientsChanged();
   }
 }
 

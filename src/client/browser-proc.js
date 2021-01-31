@@ -35,6 +35,7 @@ class BrowserProc {
   }
 
   // Private Methods:
+  // TODO: This code is duplicated in the Client class
   async _closeClient() {
     await this.clientData.update({open: false});
     frontend.notifyClientsChanged();
