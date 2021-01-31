@@ -42,13 +42,11 @@ describe('createClient Command', () => {
 
       expect(client.type).to.eql('anything');
       expect(client.open).to.eql(1);
-      expect(client.browser_port).to.be.a('Number');
       expect(client.proxy_port).to.be.a('Number');
     });
 
     it('returns the client info', async () => {
       expect(result.clientInfo.id).to.be.a('Number');
-      expect(result.clientInfo.browserPort).to.be.a('Number');
       expect(result.clientInfo.proxyPort).to.be.a('Number');
     });
   });
