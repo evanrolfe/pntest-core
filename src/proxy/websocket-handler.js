@@ -122,8 +122,10 @@ const connectUpstream = (requestUrl, request, socket, head, requestId) => {
 const handleUpgrade = async (request, socket, head) => {
   const parsedUrl = url.parse(request.url);
   let { hostname, port } = parsedUrl;
-  const { requestedProtocol, path } = parsedUrl;
+  const { path } = parsedUrl;
+  const requestedProtocol = parsedUrl.protocol;
   console.log(`[WebSocket] handling upgrade for  ${request.url}`);
+  console.log(`[WebSocket] requestedProtocol  ${requestedProtocol}, path: ${path}`);
 
   const transparentProxy = !hostname;
 

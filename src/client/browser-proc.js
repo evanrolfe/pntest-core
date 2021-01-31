@@ -1,5 +1,5 @@
 const launcher = require('@httptoolkit/browser-launcher');
-
+const fs = require('fs');
 const { instrumentBrowserWithPuppeteer } = require('./browser/instrument-with-puppeteer');
 const { getSPKIFingerprint } = require('../shared/cert-utils');
 const frontend = require('../shared/notify_frontend');
@@ -22,7 +22,7 @@ class BrowserProc {
         break;
 
       case 'firefox':
-        this.startFirefox();
+        await this._startFirefox();
         break;
 
       default:
@@ -121,7 +121,6 @@ class BrowserProc {
     this.pid = browserInstance.pid;
   }
 
-/*
   //https://stackoverflow.com/questions/1435000/programmatically-install-certificate-into-mozilla
   //https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options#User_Profile
   //https://support.mozilla.org/en-US/kb/setting-certificate-authorities-firefox
@@ -137,56 +136,64 @@ class BrowserProc {
   // openssl req -new -key testCA.key -out testCA.csr
   // openssl x509 -req -in testCA.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -days 3650 -sha256 -out testCA.pem
   // https://stackoverflow.com/questions/12219639/is-it-possible-to-dynamically-return-an-ssl-certificate-in-nodejs
-  const startFirefox = async (proxyPort, browserId, paths, proxyPid) => {
-    const profilePath = `${paths.dataPath}/firefox-profile${browserId}`;
+  async _startFirefox() {
+    const profilePath = `${this.paths.dataPath}/firefox-profile`;
 
-    launcher(function(err, launch) {
-      if (err) {
-        return console.error(err);
+    const launchOptions = {
+      browser: 'firefox',
+      profile: profilePath,
+      proxy: `127.0.0.1:${this.clientData.proxyPort}`,
+      noProxy: '<-loopback>',
+      detached: false,
+      options: [],
+      prefs: {
+        'network.proxy.ssl': '"127.0.0.1"',
+        'network.proxy.ssl_port': this.clientData.proxyPort,
+        'network.proxy.http': '"127.0.0.1"',
+        'network.proxy.http_port': this.clientData.proxyPort,
       }
+    };
 
-      // Copy cert9.db to thew new profile:
-      if (!fs.existsSync(profilePath)){
-        fs.mkdirSync(profilePath);
-      }
+    // Copy cert9.db to thew new profile:
+    if (!fs.existsSync(profilePath)){
+      fs.mkdirSync(profilePath);
+    }
+    fs.copyFileSync(this.paths.cert9Path, `${profilePath}/cert9.db`);
 
-      try {
-        fs.copyFileSync(paths.cert9Path, `${profilePath}/cert9.db`, COPYFILE_EXCL);
-      } catch (error) {
-        // The cert9.db file already exists
-        console.log(error);
-      }
-
-      const launchOptions = {
-        browser: 'firefox',
-        profile: profilePath,
-        proxy: `127.0.0.1:${proxyPort}`,
-        noProxy: '<-loopback>',
-        detached: false,
-        options: [],
-        prefs: {
-          'network.proxy.ssl': '"127.0.0.1"',
-          'network.proxy.ssl_port': proxyPort,
-          'network.proxy.http': '"127.0.0.1"',
-          'network.proxy.http_port': proxyPort,
-        }
-      };
-
-      launch('https://linuxmint.com/', launchOptions, function(err, instance) {
+    const browserInstance = await new Promise((resolve, reject) => {
+      launcher(function(err, launch) {
         if (err) {
-          return console.error(err);
+          console.error(err);
+          return;
         }
 
-        console.log('Instance started with PID:', instance.pid);
+        launch('', launchOptions, async (err, browserInstance) => {
+          if (err) {
+            console.log(`[Backend] Error: ${err}`);
+            return;
+          }
 
-        instance.on('stop', function(code) {
-          // TODO: Make this remove the PIDS from the global var just like startChromeChromium() does
-          console.log('Instance stopped with exit code:', code);
+          resolve(browserInstance);
         });
       });
     });
-  };
-*/
+
+    browserInstance.on('stop', async (code) => {
+      console.log('[Backend] Browser instance stopped with exit code:', code);
+      try {
+        if(this.onClosedCallback) this.onClosedCallback();
+      } catch(err) {
+        // This will occur if we have already closed the proxy process i.e. on exit
+        console.log(err.message)
+      } finally {
+        this._closeClient();
+      }
+    });
+
+    // TODO: Make Firefox work with puppeteer
+    //this.puppeteerBrowser = await instrumentBrowserWithPuppeteer(this.clientData.id, this.clientData.browserPort, this.options);
+    this.pid = browserInstance.pid;
+  }
 }
 
 module.exports = { BrowserProc };
