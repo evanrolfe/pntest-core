@@ -1,3 +1,5 @@
+// NOTE: This is only ever used by the tests to create a test database
+// the value of this should only ever be copied from pntest/src/lib/database_schema.py
 module.exports = `CREATE TABLE IF NOT EXISTS requests(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   client_id INTEGER,

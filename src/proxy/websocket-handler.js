@@ -3,7 +3,7 @@ const WebSocket = require('ws');
 const Settings = require('../shared/models/settings');
 const Request = require('../shared/models/request');
 const WebsocketMessage = require('../shared/models/websocket-message');
-
+const frontend = require('../shared/notify_frontend');
 /*
  * NOTE: How are websocket HTTP handshake requests saved to the database?
 
@@ -56,6 +56,7 @@ const pipeWebSocket = (inSocket, outSocket, direction, requestUrl, dbRequest) =>
     };
     const dbResult = await global.knex('websocket_messages').insert(dbMessage);
     dbMessage.id = dbResult[0];
+    frontend.notifyNewWebsocketMessage(dbMessage);
 
     const isInterceptEnabled = await interceptEnabled();
 
@@ -75,6 +76,8 @@ const pipeWebSocket = (inSocket, outSocket, direction, requestUrl, dbRequest) =>
       } else {
         outputBody = body;
       }
+    } else {
+      outputBody = body;
     }
 
     outSocket.send(outputBody, onPipeFailed('message'));

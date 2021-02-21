@@ -36,6 +36,19 @@ const notifyUpdatedRequest = (reqResPair) => {
   console.log(`[JSON] ${JSON.stringify(message)}`)
 };
 
+const notifyNewWebsocketMessage = (wsMessage) => {
+  const message = {
+    type: 'newWebsocketMessage',
+    message: {
+      id: wsMessage.id,
+      request_id: wsMessage.request_id,
+      direction: wsMessage.direction,
+      created_at: wsMessage.created_at
+    }
+  }
+  console.log(`[JSON] ${JSON.stringify(message)}`)
+};
+
 const notifyClientsChanged = () => {
   const message = { type: 'clientsChanged' }
   console.log(`[JSON] ${JSON.stringify(message)}`)
@@ -69,6 +82,7 @@ const notifyCrawlFinished = () => {
 module.exports = {
   notifyNewRequest,
   notifyUpdatedRequest,
+  notifyNewWebsocketMessage,
   notifyClientsChanged,
   notifyClientStarted,
   notifyClientsClosed,
