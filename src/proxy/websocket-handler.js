@@ -1,5 +1,8 @@
 const url = require('url');
 const WebSocket = require('ws');
+const Settings = require('../shared/models/settings');
+const Request = require('../shared/models/request');
+const WebsocketMessage = require('../shared/models/websocket-message');
 
 /*
  * NOTE: How are websocket HTTP handshake requests saved to the database?
@@ -20,21 +23,20 @@ const WebSocket = require('ws');
  * So we have to use data from both chromium and the proxy server to populate
  * the request database table.
  */
-const wsServer = new WebSocket.Server({ noServer: true });
-wsServer.on('connection', (ws, requestUrl, requestId) => {
-  console.log('[WebSocket] Successfully proxying websocket streams');
 
-  pipeWebSocket(ws, ws.upstreamSocket, 'outgoing', requestUrl, requestId);
-  pipeWebSocket(ws.upstreamSocket, ws, 'incoming', requestUrl, requestId);
+const interceptEnabled = async () => {
+  const setting = await Settings.getSetting('interceptEnabled');
+  return setting.value === '1';
+};
+
+const wsServer = new WebSocket.Server({ noServer: true });
+wsServer.on('connection', (ws, requestUrl, dbRequest) => {
+  console.log('[WebSocket] Successfully proxying websocket streams');
+  pipeWebSocket(ws, ws.upstreamSocket, 'outgoing', requestUrl, dbRequest);
+  pipeWebSocket(ws.upstreamSocket, ws, 'incoming', requestUrl, dbRequest);
 });
 
-const pipeWebSocket = (
-  inSocket,
-  outSocket,
-  direction,
-  requestUrl,
-  requestId
-) => {
+const pipeWebSocket = (inSocket, outSocket, direction, requestUrl, dbRequest) => {
   const onPipeFailed = op => err => {
     if (!err) return;
 
@@ -46,14 +48,28 @@ const pipeWebSocket = (
     console.log(
       `[WebSocket] Websocket message ${requestUrl} (${direction}): ${body}`
     );
-    const dbParams = {
-      request_id: requestId,
+    const dbMessage = {
+      request_id: dbRequest.id,
       direction: direction,
       body: body,
       created_at: Math.floor(new Date().getTime() / 1000)
     };
-    await global.knex('websocket_messages').insert(dbParams);
-    //proxyIPC.send('websocketMessageCreated', {});
+    const dbResult = await global.knex('websocket_messages').insert(dbMessage);
+    dbMessage.id = dbResult[0];
+
+    const isInterceptEnabled = await interceptEnabled();
+
+    if (isInterceptEnabled) {
+      const requestForIntercept = new Request(dbRequest);
+      requestForIntercept.id = dbRequest.id;
+
+      const messageForIntercept = new WebsocketMessage({ request: requestForIntercept, ...dbMessage });
+      const result = await interceptClient.decisionForRequest(messageForIntercept);
+
+      if (result.decision == 'forward' && result.request.rawRequest !== undefined) {
+        body = result.request.rawRequest;
+      }
+    }
 
     outSocket.send(body, onPipeFailed('message'));
   });
@@ -93,8 +109,9 @@ const saveResponseToDB = async (requestId, response) => {
   //proxyIPC.send('websocketMessageCreated', {});
 };
 
-const connectUpstream = (requestUrl, request, socket, head, requestId) => {
-  console.log(`[WebSocket] Connecting to upstream websocket at ${requestUrl}`);
+const connectUpstream = (requestUrl, request, socket, head, dbRequest) => {
+  const requestId = dbRequest.id;
+  console.log(`[WebSocket] Connecting to upstream websocket at ${requestUrl} request id: ${requestId}`);
 
   const upstreamSocket = new WebSocket(requestUrl);
 
@@ -114,14 +131,17 @@ const connectUpstream = (requestUrl, request, socket, head, requestId) => {
     wsServer.handleUpgrade(request, socket, head, ws => {
       console.log(`[WebSocket] wsServer.handleUpgrade for url: ${requestUrl}`);
       ws.upstreamSocket = upstreamSocket;
-      wsServer.emit('connection', ws, requestUrl, requestId);
+      wsServer.emit('connection', ws, requestUrl, dbRequest);
     });
   });
 
   upstreamSocket.once('error', e => console.log(e));
 };
 
-const handleUpgrade = async (request, socket, head) => {
+const handleUpgrade = async (request, socket, head, interceptClient) => {
+  // TODO: Awful I know, but I dont have time to refactor all this code in order to properly inject the interceptClient
+  global.interceptClient = interceptClient;
+
   const parsedUrl = url.parse(request.url);
   let { hostname, port } = parsedUrl;
   const { path } = parsedUrl;
@@ -145,7 +165,7 @@ const handleUpgrade = async (request, socket, head) => {
     const realUrl = `${protocol}://${hostname}${port ? `:${port}` : ``}${path}`;
 
     // 1. Save the websocket HTTP handshake request to DB
-    const requestParams = {
+    const dbRequest = {
       method: request.method,
       url: realUrl,
       host: request.headers.host,
@@ -156,10 +176,11 @@ const handleUpgrade = async (request, socket, head) => {
       websocket_sec_key: request.headers['sec-websocket-key']
     };
 
-    const dbRequest = await global.knex('requests').insert(requestParams);
-    const requestId = dbRequest[0];
+    const dbResult = await global.knex('requests').insert(dbRequest);
+    const requestId = dbResult[0];
+    dbRequest.id = requestId;
 
-    connectUpstream(realUrl, request, socket, head, requestId);
+    connectUpstream(realUrl, request, socket, head, dbRequest);
   } else {
     // Connect directly according to the specified URL
     const protocol = requestedProtocol.replace('http', 'ws');

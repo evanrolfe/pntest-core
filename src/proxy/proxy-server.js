@@ -50,6 +50,8 @@ const startProxyServer = async (portNumber, browserId, interceptClient, paths) =
     proxyRequestListener.bind(null, browserId, interceptClient)
   );
 
+  server.on('upgrade', (request, socket, head) => handleUpgrade(request, socket, head, interceptClient));
+
   // Used in our oncertcb monkeypatch above, as a workaround for https://github.com/mscdex/httpolyglot/pull/11
   server.disableTlsHalfOpen = true;
 
@@ -100,8 +102,6 @@ const startProxyServer = async (portNumber, browserId, interceptClient, paths) =
       }
     );
   });
-
-  server.on('upgrade', handleUpgrade);
 
   const unwrapTLS = (targetHost, port, socket) => {
     const generatedCert = ca.generateCertificate(targetHost);
