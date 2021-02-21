@@ -1,5 +1,5 @@
 const knex = require('knex');
-const schemaSql = require('./schema');
+const schemaSql = require('../../test/schema');
 
 const setupDatabaseStore = async (databaseFile) => {
   const dbConn = knex({
@@ -9,19 +9,11 @@ const setupDatabaseStore = async (databaseFile) => {
   });
 
   console.log(`[Backend] Loaded database ${databaseFile}`);
-/*
-  // Check if we need to import the database schema:
-  const tables = await dbConn.raw("SELECT name FROM sqlite_master WHERE type='table'");
-  const tableNames = tables.map(table => table.name);
 
-  if (
-    !tableNames.includes('clients') ||
-    !tableNames.includes('capture_filters') ||
-    !tableNames.includes('intercept_filters') ||
-    !tableNames.includes('requests') ||
-    !tableNames.includes('settings') ||
-    !tableNames.includes('websocket_messages')
-  ) {
+  return dbConn;
+};
+
+const importSchema = async (schemaSql) => {
     console.log(`[Backend] importing database schema...`);
     const queries = schemaSql
     .toString()
@@ -33,12 +25,10 @@ const setupDatabaseStore = async (databaseFile) => {
 
   for (let i = 0; i < queries.length; i++) {
     // eslint-disable-next-line no-await-in-loop
-    await dbConn.raw(queries[i]);
+    await global.knex.raw(queries[i]);
   }
-    console.log(`[Backend] schema imported.`);
-  }
-*/
-  return dbConn;
+
+  console.log(`[Backend] schema imported.`);
 };
 
-module.exports = { setupDatabaseStore };
+module.exports = { setupDatabaseStore, importSchema };

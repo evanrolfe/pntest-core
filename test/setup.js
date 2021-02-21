@@ -3,12 +3,12 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const path = require('path');
 
-const { setupDatabaseStore } = require('../src/shared/database');
+const { setupDatabaseStore, importSchema } = require('../src/shared/database');
 const { messageFromBackend, clearDatabaseTable } = require('./utils');
 const { ensureBackendIsKilled } = require('./support/ensure_backend_is_killed');
 const { checkServerIsRunning } = require('./support/check_server_is_running');
 const { ClientGetter } = require('./support/clientGetter')
-
+const schemaSql  = require('./schema');
 global.expect = expect;
 
 const DEBUG_BROWSER_UTILS = true;
@@ -61,10 +61,18 @@ const spawnBackend = async () => {
 
 before(async () => {
   await checkServerIsRunning();
+
+  if (fs.existsSync(dbPath)) {
+    fs.unlinkSync(dbPath)
+  }
+  fs.closeSync(fs.openSync(dbPath, 'w'));
+
+  global.knex = await setupDatabaseStore(dbPath);
+  await importSchema(schemaSql);
+
   await spawnBackend();
   console.log(`[TEST] Backend process spawned.`);
 
-  global.knex = await setupDatabaseStore(dbPath);
   console.log(`[TEST] Connected to database.`);
   console.log(`[TEST] Clearing existing tables in database...`);
   for(let i =0; i< DATABASE_TABLES.length; i++) {

@@ -10,7 +10,6 @@ module.exports = `CREATE TABLE IF NOT EXISTS requests(
   ext TEXT,
   websocket_request_id TEXT,
   websocket_sec_key TEXT,
-
   request_modified BOOLEAN,
   modified_method TEXT,
   modified_url TEXT,
@@ -20,13 +19,10 @@ module.exports = `CREATE TABLE IF NOT EXISTS requests(
   modified_ext TEXT,
   modified_request_headers TEXT,
   modified_request_payload TEXT,
-
-  created_at INTEGER,
   request_type TEXT,
   response_body_rendered TEXT,
   response_remote_address TEXT,
   response_http_version TEXT,
-
   request_headers TEXT,
   request_payload TEXT,
   response_status INTEGER,
@@ -34,14 +30,43 @@ module.exports = `CREATE TABLE IF NOT EXISTS requests(
   response_headers TEXT,
   response_body TEXT,
   response_body_length INTEGER,
-
   response_modified BOOLEAN,
   modified_response_status INTEGER,
   modified_response_status_message TEXT,
   modified_response_headers TEXT,
   modified_response_body TEXT,
   modified_response_body_length INTEGER,
-  modified_response_http_version TEXT
+  modified_response_http_version TEXT,
+  created_at INTEGER,
+  updated_at INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS editor_items(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  parent_id INTEGER,
+  name TEXT NOT NULL,
+  item_type TEXT NOT NULL,
+  item_id INTEGER,
+  created_at INTEGER,
+  updated_at INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS editor_requests(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  parent_id INTEGER,
+  method TEXT,
+  url TEXT,
+  request_headers TEXT,
+  request_payload TEXT,
+  response_remote_address TEXT,
+  response_http_version TEXT,
+  response_status INTEGER,
+  response_status_message TEXT,
+  response_headers TEXT,
+  response_body TEXT,
+  response_body_length INTEGER,
+  created_at INTEGER,
+  updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS websocket_messages(
@@ -50,12 +75,15 @@ CREATE TABLE IF NOT EXISTS websocket_messages(
   direction TEXT,
   body TEXT,
   body_modified TEXT,
-  created_at INTEGER
+  created_at INTEGER,
+  updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS capture_filters(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  filters TEXT NOT NULL
+  filters TEXT NOT NULL,
+  created_at INTEGER,
+  updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS intercept_filters(
@@ -73,13 +101,16 @@ CREATE TABLE IF NOT EXISTS clients(
   browser_port INTEGER,
   open BOOLEAN DEFAULT 0,
   created_at INTEGER,
+  updated_at INTEGER,
   launched_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS settings(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   key TEXT NOT NULL UNIQUE,
-  value TEXT NOT NULL
+  value TEXT NOT NULL,
+  created_at INTEGER,
+  updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS crawls(

@@ -59,6 +59,8 @@ const pipeWebSocket = (inSocket, outSocket, direction, requestUrl, dbRequest) =>
 
     const isInterceptEnabled = await interceptEnabled();
 
+    let outputBody;
+
     if (isInterceptEnabled) {
       const requestForIntercept = new Request(dbRequest);
       requestForIntercept.id = dbRequest.id;
@@ -66,12 +68,16 @@ const pipeWebSocket = (inSocket, outSocket, direction, requestUrl, dbRequest) =>
       const messageForIntercept = new WebsocketMessage({ request: requestForIntercept, ...dbMessage });
       const result = await interceptClient.decisionForRequest(messageForIntercept);
 
-      if (result.decision == 'forward' && result.request.rawRequest !== undefined) {
-        body = result.request.rawRequest;
+      if (result.decision == 'forward' && result.request.rawRequest !== undefined && result.request.rawRequest != dbMessage.body) {
+        outputBody = result.request.rawRequest;
+
+        await global.knex('websocket_messages').where({ id: dbMessage.id }).update({ body_modified: outputBody });
+      } else {
+        outputBody = body;
       }
     }
 
-    outSocket.send(body, onPipeFailed('message'));
+    outSocket.send(outputBody, onPipeFailed('message'));
   });
 
   inSocket.on('close', (num, reason) => {

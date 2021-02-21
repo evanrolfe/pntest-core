@@ -87,13 +87,15 @@ describe('The Intercept', () => {
 
       expect(messages[0].direction).to.eq('incoming')
       expect(messages[0].body).to.eq('Hey, Im the websocket server')
+      expect(messages[0].body_modified).to.eq('THIS HAS BEEN MODIFIED!!!!!!!!!!!!')
 
       expect(messages[1].direction).to.eq('outgoing')
       expect(messages[1].body).to.eq('HEY')
+      expect(messages[1].body_modified).to.eq(null)
 
       expect(messages[2].direction).to.eq('incoming')
       expect(messages[2].body).to.eq('We have received your message loud and clear: HEY')
+      expect(messages[2].body_modified).to.eq(null)
     });
   });
 });
-

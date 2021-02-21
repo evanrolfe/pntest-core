@@ -1,6 +1,10 @@
 const path = require('path');
 const express = require('express');
+const WebSocket = require('ws');
 
+// -----------------------------------------------------------------------------
+// Http Server
+// -----------------------------------------------------------------------------
 const server = express();
 const port = 3000;
 
@@ -19,7 +23,7 @@ const USERS = [
 
 server.use('/', express.static(path.join(__dirname, 'frontend')))
 server.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  console.log(`[Http] ${req.method} ${req.url}`);
   next();
 });
 server.use(express.json());
@@ -33,7 +37,7 @@ server.get('/api/users.json',  (req, res) => {
 });
 
 server.post('/api/posts.json', (req, res) => {
-  console.log(`Received POST request with payload: ${JSON.stringify(req.body)}`)
+  console.log(`[Http] Received POST request with payload: ${JSON.stringify(req.body)}`)
   res.json({message: `Hello, you told us your name is: ${req.body.name}`})
 });
 
@@ -49,5 +53,20 @@ server.get('/api/users/:userId.json',  (req, res) => {
   res.json(user)
 });
 
-server.listen(port, () => console.log(`[MockServer] listening at http://localhost:${port}`));
+server.listen(port, () => console.log(`[Http] server listening at http://localhost:${port}`));
 
+// -----------------------------------------------------------------------------
+// Websocket Server
+// -----------------------------------------------------------------------------
+const wss = new WebSocket.Server({ port: 3002 });
+
+wss.on('connection', function connection(ws) {
+  ws.on('message', function incoming(message) {
+    console.log(`[Websocket] received: ${message}`);
+    ws.send(`We have received your message loud and clear: ${message}`);
+  });
+
+  ws.send("Hey, Im the websocket server");
+});
+
+console.log(`[Websocket] server running on port 3002`)
