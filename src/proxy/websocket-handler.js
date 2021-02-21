@@ -50,7 +50,7 @@ const pipeWebSocket = (
       request_id: requestId,
       direction: direction,
       body: body,
-      created_at: Date.now()
+      created_at: Math.floor(new Date().getTime() / 1000)
     };
     await global.knex('websocket_messages').insert(dbParams);
     //proxyIPC.send('websocketMessageCreated', {});
